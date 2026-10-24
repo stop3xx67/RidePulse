@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.dummy import DummyRegressor
 from sklearn.metrics import mean_absolute_error
+from sklearn.ensemble import RandomForestRegressor
 
 df = pd.read_parquet('D:/VS Code/ridepulse/data/raw/yellow_tripdata_2025-01 (2).parquet')
 
@@ -131,6 +132,27 @@ print('DecisionTreeRegressor MAE on Validation:', MAE_tree)
 y_pred2 = model_tree.predict(X_train)
 MAE_tree2 = mean_absolute_error(y_true=y_train, y_pred=y_pred2)
 print('DecisionTreeRegressor MAE on Train:', MAE_tree2)
+
+model_random_forest = RandomForestRegressor(
+    n_estimators=30,
+    bootstrap=True,
+    min_samples_leaf=6,
+    max_samples=1.0,
+    max_features=0.75,
+    max_depth=30,
+    criterion='squared_error'
+    )
+
+model_random_forest.fit(X_train, y_train)
+
+y_pred_rand = model_random_forest.predict(X_val)
+MAE_tree_rand = mean_absolute_error(y_true=y_val, y_pred=y_pred_rand)
+print('RandomForestRegressor MAE on Validation:', MAE_tree_rand)
+
+y_pred_rand2 = model_random_forest.predict(X_train)
+MAE_tree_rand2 = mean_absolute_error(y_true=y_train, y_pred=y_pred_rand2)
+print('RandomForestRegressor MAE on Train:', MAE_tree_rand2)
+
 
 
 

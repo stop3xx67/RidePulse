@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 import time
 
 df = pd.read_parquet('D:/VS Code/ridepulse/data/raw/yellow_tripdata_2025-01 (2).parquet')
@@ -55,13 +56,9 @@ days_and_weeks = [
 
 print(DF[days_and_weeks].isna().sum())
 
-print(DF.head(10))
-
 df_places = pd.read_csv('D:/VS Code/ridepulse/data/raw/taxi_zone_lookup.csv')
 
 print('Уникальных LocationID -', len(df_places['LocationID'].unique()))
-
-print(df_places.isna().sum())
 
 mask1 = DF['PULocationID'].isin(df_places['LocationID'])
 mask2 = DF['DOLocationID'].isin(df_places['LocationID'])
@@ -71,5 +68,42 @@ m2 = ~mask2
 
 print(sum(m1))
 print(sum(m2))
+
+DF = DF[DF['tpep_pickup_datetime'].dt.month < 2]
+DF['tpep_pickup_datetime'] = pd.to_datetime(DF['tpep_pickup_datetime'])
+DF = DF.sort_values(by='tpep_pickup_datetime').reset_index(drop=True)
+
+print(DF['tpep_pickup_datetime'].dt.month.max())
+print(DF['tpep_pickup_datetime'].is_monotonic_increasing)
+
+columns_for_X = [
+    'PULocationID',
+    'DOLocationID',
+    'pickup_hour',
+    'pickup_weekday'
+    ]
+
+X = DF[columns_for_X]
+y = DF['duration_trip_in_mins']
+
+print(X.shape)
+print(y.shape)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.3
+    )
+
+X_val, X_test, y_val, y_test = train_test_split(
+    X_test,
+    y_test,
+    test_size=0.5
+    )
+
+print(X_train.shape)
+print(X_val.shape)
+print(X_test.shape)
+
 
 

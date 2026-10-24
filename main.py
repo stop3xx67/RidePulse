@@ -16,4 +16,9 @@ print('Поездок с длительностью больше 180 минут 
 print('Их процент от общего числа поездок -', round(df[df['duration_trip_in_mins'] > 180].shape[0] / df['duration_trip_in_mins'].shape[0], 5) * 100, '%')
 
 print('Первые 10 поездок дольше 180 минут -', df[df['duration_trip_in_mins'] > 180].head(10))
-print(df[df['duration_trip_in_mins'] > 180]['trip_distance'])
+print('Их расстояние\n', df[df['duration_trip_in_mins'] > 180]['trip_distance'])
+
+print('Дольше 180 минут но расстояние не пройдено -', df[(df['duration_trip_in_mins'] > 180) & (df['trip_distance'] == 0)].shape[0])
+print('Их медианная длительность -', df[df['duration_trip_in_mins'] > 180]['duration_trip_in_mins'].median())
+
+print('Сколько поездок длительностью больше 180 минут заканчиваются ровно в 00:00:00 -', df[(df['duration_trip_in_mins'] > 180) & (df['tpep_dropoff_datetime'].dt.strftime('%H:%M:%S') == '00:00:00')].shape[0])

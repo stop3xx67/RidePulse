@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.dummy import DummyRegressor
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
 
 df = pd.read_parquet('D:/VS Code/ridepulse/data/raw/yellow_tripdata_2025-01 (2).parquet')
@@ -140,18 +140,46 @@ model_random_forest = RandomForestRegressor(
     max_samples=1.0,
     max_features=0.75,
     max_depth=30,
-    criterion='squared_error'
+    criterion='squared_error',
+    random_state=42
     )
 
 model_random_forest.fit(X_train, y_train)
 
 y_pred_rand = model_random_forest.predict(X_val)
 MAE_tree_rand = mean_absolute_error(y_true=y_val, y_pred=y_pred_rand)
+RMSE_tree_rand = root_mean_squared_error(y_true=y_val, y_pred=y_pred_rand)
+R2_tree_rand = r2_score(y_true=y_val, y_pred=y_pred_rand)
 print('RandomForestRegressor MAE on Validation:', MAE_tree_rand)
+print('RandomForestRegressor RMSE on Validation:', RMSE_tree_rand)
+print('RandomForestRegressor R2 on Validation:', R2_tree_rand)
 
 y_pred_rand2 = model_random_forest.predict(X_train)
 MAE_tree_rand2 = mean_absolute_error(y_true=y_train, y_pred=y_pred_rand2)
 print('RandomForestRegressor MAE on Train:', MAE_tree_rand2)
+
+
+df_errors = pd.DataFrame({
+    'real_duration': y_val,
+    'model_predict': y_pred_rand 
+    })
+
+df_errors['absolute_error'] = (df_errors['real_duration'] - df_errors['model_predict']).abs()
+
+print(df_errors.head(10))
+
+min_bins = [0, 10, 30, float('inf')]
+mins = ['short_trip', 'usual_trip', 'long_trip']
+
+df_errors['category_of_trip'] = pd.cut(
+    df_errors['real_duration'],
+    bins=min_bins,
+    labels=mins
+)
+
+grouped_erros = df_errors.groupby('category_of_trip')['absolute_error'].mean()
+
+print(grouped_erros.head(10))
 
 
 

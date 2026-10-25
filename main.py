@@ -177,10 +177,38 @@ df_errors['category_of_trip'] = pd.cut(
     labels=mins
 )
 
-grouped_erros = df_errors.groupby('category_of_trip')['absolute_error'].mean()
+grouped_erros = df_errors.groupby('category_of_trip')['absolute_error'].agg(['mean', 'count', 'max', 'min'])
 
 print(grouped_erros.head(10))
 
+df_errors['signed_error'] = df_errors['real_duration'] - df_errors['model_predict']
+mean_of_every_value = df_errors.groupby('category_of_trip')['signed_error'].mean()
+
+print(mean_of_every_value.head(10))
+
+res = pd.merge(DF,
+               df_places,
+               left_on='PULocationID',
+               right_on='LocationID',
+               how='left'
+               )
+
+res = pd.merge(
+    res,
+    df_places,
+    left_on='DOLocationID',
+    right_on='LocationID',
+    how='left',
+    suffixes=(
+        '_pickup',
+        '_dropoff'
+        )   
+    )
+
+DF['Borough_pickup'], DF['Borough_dropoff'] = res['Borough_pickup'], res['Borough_dropoff']
+
+print(DF.shape)
+print(res.shape)
 
 
 

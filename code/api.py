@@ -27,7 +27,7 @@ def predict(data: NewData):
             detail='Извините, зона посадки не найдена'
             )
 
-    pickup_borough = pickup_row['Borough'][0]
+    pickup_borough = pickup_row['Borough'].iloc[0]
 
     if pd.isna(pickup_borough):
         raise HTTPException(
@@ -43,9 +43,9 @@ def predict(data: NewData):
             detail='Извините, зона высадки не найдена'
             )
 
-    dropoff_borough = dropoff_row['Borough'][0]
+    dropoff_borough = dropoff_row['Borough'].iloc[0]
 
-    if pd.isna(dropoff_row):
+    if pd.isna(dropoff_borough):
         raise HTTPException(
             status_code=422,
             detail='Извините, зона высадки не определена'
@@ -59,9 +59,6 @@ def predict(data: NewData):
         df[df['LocationID'] == data.place_id_from]['Borough'].iloc[0],
         df[df['LocationID'] == data.place_id_to]['Borough'].iloc[0]
         ]
-
-    print(obj)
-    print(type(obj[4]), type(obj[5]))
     
     prediction = model.predict(pd.DataFrame([
         {
